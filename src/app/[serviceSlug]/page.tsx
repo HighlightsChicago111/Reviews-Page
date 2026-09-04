@@ -61,7 +61,7 @@ export default async function ServiceReviewsPage({params}: Props) {
             <div className="review-detail-main">
               <div className="review-detail-heading"><div><p className="collection-kicker">What customers said</p><h2>All {page.serviceName.toLowerCase()} reviews</h2></div><p>{page.reviews.length} excerpts selected because they mention this service or closely related work.</p></div>
               <div className="reviews-grid review-detail-cards">
-                {page.reviews.map((review, index) => <GoogleReviewCard review={review} aggregateRating={aggregateRating} fullText key={review._key || review.sourceId || index} />)}
+                {page.reviews.map((review, index) => <GoogleReviewCard review={review} aggregateRating={aggregateRating} key={review._key || review.sourceId || index} />)}
               </div>
               {settings.google?.reviewsUrl && <div className="review-google-cta"><div><span>Want the complete picture?</span><strong>Read all {settings.google.reviewCount || ''} public reviews on Google.</strong></div><a href={settings.google.reviewsUrl} target="_blank" rel="noreferrer">Open Google reviews <span aria-hidden="true">→</span></a></div>}
               {settings.reviewsDisclaimer && <p className="review-disclaimer">{settings.reviewsDisclaimer}</p>}

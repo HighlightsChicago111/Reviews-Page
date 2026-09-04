@@ -300,3 +300,36 @@ a{color:var(--brand);text-underline-offset:3px}
   .review-collection-body .rating-sm .num,.review-collection-body .rating-sm .out{font-size:.72rem}
   .review-collection-body .rating-sm .stars{font-size:.68rem}
 }
+
+/* Equal-height review excerpts: eight lines maximum, then an ellipsis. */
+.service-landing .rev-card blockquote{
+  block-size:12.8em;
+  display:-webkit-box;
+  height:12.8em;
+  line-clamp:8;
+  max-height:12.8em;
+  min-height:12.8em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:8;
+}
+.review-page .rev-card blockquote,
+.review-page .rev-card-full blockquote{
+  display:-webkit-box;
+  height:13.2em;
+  line-clamp:8;
+  max-height:13.2em;
+  min-height:13.2em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:8;
+}
+.review-detail-main{min-width:0}
+
+@media(min-width:1051px){
+  .review-detail-content .collection-wrap{width:min(1360px,calc(100% - 40px))}
+  .review-detail-grid{gap:36px;grid-template-columns:240px minmax(0,1fr)}
+  .review-detail-cards{gap:24px}
+}

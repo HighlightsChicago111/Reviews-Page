@@ -31,11 +31,11 @@ function ReviewShell({review, children, className}: {review: Review; children: R
   return <a className={className} href={review.sourceUrl} target="_blank" rel="noreferrer">{children}</a>
 }
 
-export function GoogleReviewCard({review, aggregateRating, fullText = false}: {review: Review; aggregateRating?: number; fullText?: boolean}) {
+export function GoogleReviewCard({review, aggregateRating}: {review: Review; aggregateRating?: number}) {
   const rating = review.rating || aggregateRating
   const context = review.reviewDate || review.location
   return (
-    <ReviewShell review={review} className={`rev-card${fullText ? ' rev-card-full' : ''}`}>
+    <ReviewShell review={review} className="rev-card">
       <blockquote>{review.quote}</blockquote>
       {rating && <div className="rev-rating"><GoogleRating rating={rating} compact /></div>}
       <footer className="rev-meta">
