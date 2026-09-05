@@ -38,7 +38,7 @@ export default async function ReviewsPage({searchParams}: Props) {
         <section className="review-hero">
           <div className="collection-wrap review-hero-grid">
             <div>
-              <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><a href="https://www.highlightschicago.com/services">Services</a><span>/</span><strong>Reviews</strong></nav>
+              <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><strong>Reviews</strong></nav>
               <p className="collection-hero-kicker">Verified customer feedback</p>
               <h1>Chicago electrical reviews, organized around the work</h1>
               <p>Do not just read a wall of praise. Find the service you are considering, see what Chicago customers said about that work, and open every excerpt at its original Google source.</p>
