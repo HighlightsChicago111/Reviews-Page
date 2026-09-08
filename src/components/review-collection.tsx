@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import {useEffect, useMemo, useRef, useState} from 'react'
 import type {Review, ReviewCollectionItem} from '@/types/content'
 import {GoogleRating} from './google-review-card'
@@ -289,18 +288,12 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
           )}
 
           <div className="review-feed-grid">
-            {filtered.map(({id, review, services}) => {
+            {filtered.map(({id, review}) => {
               const rating = reviewRating(review, aggregateRating)
               const context = review.reviewDate || review.location
               const reviewDate = reviewDateValue(review)
               return (
                 <article className="rev-card review-feed-card" key={id}>
-                  <div className="review-feed-services">
-                    {services.slice(0, 2).map((service) => (
-                      <Link href={`/${service.slug}`} key={service.slug}>{service.name}</Link>
-                    ))}
-                    {services.length > 2 && <span>+{services.length - 2} more</span>}
-                  </div>
                   <blockquote>{review.quote}</blockquote>
                   <div className="rev-rating"><GoogleRating rating={rating} compact /></div>
                   <footer className="rev-meta">
