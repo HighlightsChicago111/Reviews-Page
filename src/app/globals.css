@@ -507,11 +507,30 @@ a{color:var(--brand);text-underline-offset:3px}
 }
 
 @media(max-width:620px){
+  .review-hero,
+  .review-detail-hero{
+    --review-mobile-image-height:clamp(210px,60vw,340px);
+    padding:calc(var(--review-mobile-image-height) + 24px) 0 46px;
+  }
   .review-hero::before,
   .review-detail-hero::before{
-    background:linear-gradient(180deg,rgba(8,15,22,.8),rgba(8,15,22,.92));
+    background:linear-gradient(180deg,rgba(8,15,22,.02) 0%,rgba(8,15,22,.06) 55%,#101923 100%);
+    bottom:auto;
+    height:calc(var(--review-mobile-image-height) + 72px);
   }
-  .review-hero-image{object-position:62% center}
+  .review-hero-image{
+    bottom:auto!important;
+    height:var(--review-mobile-image-height)!important;
+    object-fit:cover;
+    object-position:center center;
+    top:0!important;
+  }
+  .review-page .review-breadcrumb{
+    scrollbar-width:none;
+  }
+  .review-page .review-breadcrumb::-webkit-scrollbar{
+    display:none;
+  }
   .review-detail-hero .review-detail-summary>span:not(.rating){border-left-color:transparent}
 }
 
