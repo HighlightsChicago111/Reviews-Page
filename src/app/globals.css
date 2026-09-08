@@ -621,3 +621,53 @@ a{color:var(--brand);text-underline-offset:3px}
   .review-facet-heading{padding:15px}
   .review-facet-list{max-height:430px}
 }
+
+/* Review cards grow with their feedback instead of reserving eight empty lines. */
+.review-feed-grid,
+.review-detail-cards{
+  align-items:start;
+}
+.review-page .rev-card,
+.review-page .review-feed-card{
+  height:auto;
+  min-height:0;
+}
+.review-page .rev-card blockquote,
+.review-page .rev-card-full blockquote,
+.review-page .review-feed-card blockquote{
+  display:-webkit-box;
+  font-size:15px;
+  height:auto;
+  line-clamp:8;
+  line-height:1.55;
+  margin-bottom:14px;
+  max-height:12.4em;
+  min-height:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:8;
+}
+.review-feed-services{
+  min-height:0;
+}
+
+@media(max-width:620px){
+  .review-page .rev-card,
+  .review-page .review-feed-card{
+    min-height:0;
+  }
+  .review-page .rev-card blockquote,
+  .review-page .rev-card-full blockquote,
+  .review-page .review-feed-card blockquote{
+    font-size:15px;
+    height:auto;
+    line-height:1.45;
+    margin-bottom:10px;
+    max-height:11.6em;
+    min-height:0;
+  }
+  .review-feed-services{
+    min-height:0;
+  }
+}
