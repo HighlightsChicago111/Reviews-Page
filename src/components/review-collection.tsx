@@ -140,7 +140,6 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
   ], [selectedEquipment, selectedRatings, selectedYears, stablePages])
 
   const hasFilters = appliedFilters.length > 0 || query.trim().length > 0
-  const heading = hasFilters ? 'Reviews matching your filters' : 'All customer reviews'
 
   function clearFilters() {
     setSelectedRatings([])
@@ -233,15 +232,12 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
         </aside>
 
         <div className="review-results">
-          <div className="review-results-heading">
-            <div><p className="collection-kicker">Customer feedback</p><h2 id="review-directory-title">{heading}</h2></div>
-            <p>Read every review card available in this library here. Use a service label to open its dedicated review page or follow the source link to Google.</p>
-          </div>
-
           <div className="review-search-row">
             <label><span>Search reviews</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reviews, services, or customers" /></label>
             <p aria-live="polite"><strong>{filtered.length}</strong> review{filtered.length === 1 ? '' : 's'}</p>
           </div>
+
+          <p className="collection-kicker review-feed-kicker" id="review-directory-title">Customer feedback</p>
 
           {appliedFilters.length > 0 && (
             <div className="review-applied" aria-label="Applied filters">

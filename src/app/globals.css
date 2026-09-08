@@ -543,3 +543,43 @@ a{color:var(--brand);text-underline-offset:3px}
   .review-hero-image{object-position:62% center}
   .review-detail-hero .review-detail-summary>span:not(.rating){border-left-color:transparent}
 }
+
+/* Wider Google review cards, matching the service landing-page treatment. */
+.review-results>.review-search-row{margin-bottom:0}
+.review-feed-kicker{
+  color:var(--collection-lime-dark);
+  margin:24px 0 18px;
+  scroll-margin-top:160px;
+}
+.review-feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.review-page .rev-card{
+  border-radius:14px;
+  box-shadow:0 1px 2px rgba(16,40,60,.06),0 8px 24px -12px rgba(16,40,60,.18);
+  height:100%;
+}
+.review-page .rev-card blockquote{
+  font-family:inherit;
+  overflow-wrap:anywhere;
+}
+.review-page .review-feed-card{
+  min-height:410px;
+  padding:24px;
+}
+.review-page .review-feed-card blockquote{
+  height:12.8em;
+  line-height:1.6;
+  max-height:12.8em;
+  min-height:12.8em;
+}
+
+@media(max-width:620px){
+  .review-feed-kicker{margin:20px 0 14px}
+  .review-feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review-page .review-feed-card{min-height:310px;padding:13px 11px}
+  .review-page .review-feed-card blockquote{
+    height:11.6em;
+    line-height:1.45;
+    max-height:11.6em;
+    min-height:11.6em;
+  }
+}
