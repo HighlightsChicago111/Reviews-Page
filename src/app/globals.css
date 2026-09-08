@@ -468,3 +468,78 @@ a{color:var(--brand);text-underline-offset:3px}
   }
   .review-page .review-feed-card .rev-src{font-size:9px}
 }
+
+/* Homepage trust photography reused across Reviews title cards. */
+.review-hero,
+.review-detail-hero{
+  background:#101923;
+  color:#fff;
+  isolation:isolate;
+  overflow:hidden;
+  position:relative;
+}
+.review-hero::before,
+.review-detail-hero::before{
+  background:linear-gradient(90deg,rgba(8,15,22,.94) 0%,rgba(8,15,22,.82) 43%,rgba(8,15,22,.54) 70%,rgba(8,15,22,.72) 100%);
+  content:"";
+  inset:0;
+  pointer-events:none;
+  position:absolute;
+  z-index:1;
+}
+.review-hero-image{
+  object-fit:cover;
+  object-position:center 54%;
+  z-index:0;
+}
+.review-hero>.collection-wrap,
+.review-detail-hero>.collection-wrap{
+  position:relative;
+  z-index:2;
+}
+.review-hero .collection-hero-kicker,
+.review-detail-hero .collection-hero-kicker{
+  color:var(--collection-lime);
+}
+.review-hero-grid>div>p:not(.collection-hero-kicker),
+.review-detail-hero>.collection-wrap>p:not(.collection-hero-kicker){
+  color:#e5eaed;
+}
+.review-hero .review-hero-actions a{
+  border-color:#fff;
+  color:#fff;
+}
+.review-hero .review-hero-actions a:first-child{
+  background:var(--collection-lime);
+  border-color:var(--collection-lime);
+  color:var(--collection-charcoal);
+}
+.review-hero .review-hero-actions a:hover{
+  background:#fff;
+  border-color:#fff;
+  color:var(--collection-charcoal);
+}
+.review-hero .review-score-card{
+  backdrop-filter:blur(8px);
+  background:rgba(21,31,42,.94);
+  border:1px solid rgba(255,255,255,.18);
+}
+.review-detail-hero .review-detail-summary{
+  border-top-color:rgba(255,255,255,.3);
+}
+.review-detail-hero .review-detail-summary>span:not(.rating){
+  border-left-color:rgba(255,255,255,.28);
+}
+.review-detail-hero .review-detail-summary .rating .out,
+.review-detail-hero .review-detail-summary .rating .cnt{
+  color:#d8dfe3;
+}
+
+@media(max-width:620px){
+  .review-hero::before,
+  .review-detail-hero::before{
+    background:linear-gradient(180deg,rgba(8,15,22,.8),rgba(8,15,22,.92));
+  }
+  .review-hero-image{object-position:62% center}
+  .review-detail-hero .review-detail-summary>span:not(.rating){border-left-color:transparent}
+}

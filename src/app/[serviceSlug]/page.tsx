@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
@@ -37,6 +38,7 @@ export default async function ServiceReviewsPage({params}: Props) {
       <CollectionHeader />
       <main>
         <section className="review-detail-hero">
+          <Image className="review-hero-image" src="/reviews/images/reviews/highlight-chicago-main.webp" alt="" fill priority sizes="100vw" aria-hidden="true" />
           <div className="collection-wrap">
             <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><Link href="/">Reviews</Link><span>/</span><strong>{page.serviceName}</strong></nav>
             <p className="collection-hero-kicker">Google reviews by equipment</p>

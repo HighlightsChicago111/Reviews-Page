@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
 import {GoogleRating} from '@/components/google-review-card'
 import {ReviewCollection, type ReviewAxis} from '@/components/review-collection'
@@ -38,6 +39,7 @@ export default async function ReviewsPage({searchParams}: Props) {
       <CollectionHeader />
       <main>
         <section className="review-hero">
+          <Image className="review-hero-image" src="/reviews/images/reviews/highlight-chicago-main.webp" alt="" fill priority sizes="100vw" aria-hidden="true" />
           <div className="collection-wrap review-hero-grid">
             <div>
               <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><strong>Reviews</strong></nav>
