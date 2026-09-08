@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import {useMemo, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import type {Review, ReviewCollectionItem} from '@/types/content'
 import {GoogleRating} from './google-review-card'
 
@@ -60,6 +60,19 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
   )
   const [selectedYears, setSelectedYears] = useState<string[]>(activeYear ? [activeYear] : [])
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
+  const reviewResultsStartRef = useRef<HTMLParagraphElement>(null)
+  const scrollAfterFilterChangeRef = useRef(false)
+
+  useEffect(() => {
+    if (!scrollAfterFilterChangeRef.current) return
+    scrollAfterFilterChangeRef.current = false
+
+    const frame = window.requestAnimationFrame(() => {
+      reviewResultsStartRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'})
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [selectedEquipment, selectedRatings, selectedYears])
 
   const stablePages = useMemo(() => {
     const unique = new Map<string, ReviewCollectionItem>()
@@ -83,7 +96,11 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
       }
     }
 
-    return [...entries.values()].sort((a, b) => (reviewDateValue(b.review) || '').localeCompare(reviewDateValue(a.review) || ''))
+    return [...entries.values()].sort((a, b) => {
+      const lengthDifference = b.review.quote.trim().length - a.review.quote.trim().length
+      if (lengthDifference !== 0) return lengthDifference
+      return (reviewDateValue(b.review) || '').localeCompare(reviewDateValue(a.review) || '')
+    })
   }, [stablePages])
 
   const years = useMemo(
@@ -114,19 +131,28 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
     ...selectedRatings.map((rating) => ({
       key: `rating-${rating}`,
       label: `${rating}-star`,
-      remove: () => setSelectedRatings((current) => current.filter((item) => item !== rating)),
+      remove: () => {
+        scrollAfterFilterChangeRef.current = true
+        setSelectedRatings((current) => current.filter((item) => item !== rating))
+      },
     })),
     ...selectedYears.map((year) => ({
       key: `year-${year}`,
       label: year,
-      remove: () => setSelectedYears((current) => current.filter((item) => item !== year)),
+      remove: () => {
+        scrollAfterFilterChangeRef.current = true
+        setSelectedYears((current) => current.filter((item) => item !== year))
+      },
     })),
     ...selectedEquipment.map((slug) => {
       const page = stablePages.find((item) => item.serviceSlug === slug)
       return {
         key: `equipment-${slug}`,
         label: page?.serviceName || slug,
-        remove: () => setSelectedEquipment((current) => current.filter((item) => item !== slug)),
+        remove: () => {
+          scrollAfterFilterChangeRef.current = true
+          setSelectedEquipment((current) => current.filter((item) => item !== slug))
+        },
       }
     }),
   ], [selectedEquipment, selectedRatings, selectedYears, stablePages])
@@ -134,6 +160,7 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
   const hasFilters = appliedFilters.length > 0 || query.trim().length > 0
 
   function clearFilters() {
+    scrollAfterFilterChangeRef.current = true
     setSelectedRatings([])
     setSelectedYears([])
     setSelectedEquipment([])
@@ -164,7 +191,10 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                       <input
                         type="checkbox"
                         checked={selectedRatings.includes(value)}
-                        onChange={() => toggleValue(value, selectedRatings, setSelectedRatings)}
+                        onChange={() => {
+                          scrollAfterFilterChangeRef.current = true
+                          toggleValue(value, selectedRatings, setSelectedRatings)
+                        }}
                       />
                       <span>{rating}-star reviews</span>
                       <b>{count}</b>
@@ -187,7 +217,10 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                       <input
                         type="checkbox"
                         checked={selectedYears.includes(year)}
-                        onChange={() => toggleValue(year, selectedYears, setSelectedYears)}
+                        onChange={() => {
+                          scrollAfterFilterChangeRef.current = true
+                          toggleValue(year, selectedYears, setSelectedYears)
+                        }}
                       />
                       <span>{year} reviews</span>
                       <b>{count}</b>
@@ -210,7 +243,10 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                       <input
                         type="checkbox"
                         checked={selectedEquipment.includes(page.serviceSlug)}
-                        onChange={() => toggleValue(page.serviceSlug, selectedEquipment, setSelectedEquipment)}
+                        onChange={() => {
+                          scrollAfterFilterChangeRef.current = true
+                          toggleValue(page.serviceSlug, selectedEquipment, setSelectedEquipment)
+                        }}
                       />
                       <span>{page.serviceName}</span>
                       <b>{count}</b>
@@ -229,7 +265,7 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
             <p aria-live="polite"><strong>{filtered.length}</strong> review{filtered.length === 1 ? '' : 's'}</p>
           </div>
 
-          <p className="collection-kicker review-feed-kicker" id="review-directory-title">Customer feedback</p>
+          <p className="collection-kicker review-feed-kicker" id="review-directory-title" ref={reviewResultsStartRef}>Customer feedback</p>
 
           {appliedFilters.length > 0 && (
             <div className="review-applied" aria-label="Applied filters">
