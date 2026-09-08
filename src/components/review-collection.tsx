@@ -1,11 +1,8 @@
 'use client'
 
-/* eslint-disable @next/next/no-img-element -- Sanity review collection images remain crawlable. */
-
 import Link from 'next/link'
 import {useMemo, useState} from 'react'
 import type {Review, ReviewCollectionItem} from '@/types/content'
-import {serviceCardImageForSlug} from '@/lib/collection-items'
 import {GoogleRating} from './google-review-card'
 
 export type ReviewAxis = 'rating' | 'years' | 'equipment'
@@ -24,13 +21,35 @@ type AppliedFilter = {
   remove: () => void
 }
 
-function reviewYear(review: Review): string | undefined {
-  const value = review.reviewDate || review.location
-  return /^20\d{2}-\d{2}-\d{2}$/.test(value || '') ? value?.slice(0, 4) : undefined
+type ReviewService = {
+  slug: string
+  name: string
+  parentName?: string
 }
 
-function pluralReviews(count: number) {
-  return `${count} review${count === 1 ? '' : 's'}`
+type ReviewEntry = {
+  id: string
+  review: Review
+  services: ReviewService[]
+}
+
+const STAR_RATINGS = [5, 4, 3, 2, 1]
+
+function reviewDateValue(review: Review): string | undefined {
+  const value = review.reviewDate || review.location
+  return /^20\d{2}-\d{2}-\d{2}$/.test(value || '') ? value : undefined
+}
+
+function reviewYear(review: Review): string | undefined {
+  return reviewDateValue(review)?.slice(0, 4)
+}
+
+function reviewIdentity(review: Review) {
+  return review.sourceId || review.sourceUrl || `${review.author || 'anonymous'}::${review.quote}`
+}
+
+function reviewRating(review: Review, aggregateRating: number) {
+  return Math.max(1, Math.min(5, Math.round(review.rating ?? aggregateRating)))
 }
 
 function toggleValue(value: string, current: string[], update: (next: string[]) => void) {
@@ -56,37 +75,48 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
     return [...unique.values()]
   }, [pages])
 
-  const allReviews = useMemo(() => stablePages.flatMap((page) => page.reviews), [stablePages])
+  const allReviews = useMemo<ReviewEntry[]>(() => {
+    const entries = new Map<string, ReviewEntry>()
+
+    for (const page of stablePages) {
+      const service = {slug: page.serviceSlug, name: page.serviceName, parentName: page.parentName}
+      for (const review of page.reviews) {
+        const id = reviewIdentity(review)
+        const existing = entries.get(id)
+        if (existing) {
+          if (!existing.services.some((item) => item.slug === service.slug)) existing.services.push(service)
+        } else {
+          entries.set(id, {id, review, services: [service]})
+        }
+      }
+    }
+
+    return [...entries.values()].sort((a, b) => (reviewDateValue(b.review) || '').localeCompare(reviewDateValue(a.review) || ''))
+  }, [stablePages])
+
   const years = useMemo(
-    () => Array.from(new Set(allReviews.map(reviewYear).filter(Boolean) as string[])).sort().reverse(),
+    () => Array.from(new Set(allReviews.map((entry) => reviewYear(entry.review)).filter(Boolean) as string[])).sort().reverse(),
     [allReviews],
-  )
-  const starRatings = useMemo(
-    () => Array.from(new Set(allReviews.map((review) => Math.round(review.rating || aggregateRating)))).sort((a, b) => b - a),
-    [aggregateRating, allReviews],
   )
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
-    return stablePages
-      .map((page) => {
-        if (selectedEquipment.length > 0 && !selectedEquipment.includes(page.serviceSlug)) {
-          return {...page, matchingReviews: []}
-        }
-        const matchingReviews = page.reviews.filter((review) => {
-          const rating = Math.round(review.rating || aggregateRating).toString()
-          if (selectedRatings.length > 0 && !selectedRatings.includes(rating)) return false
-          const year = reviewYear(review)
-          if (selectedYears.length > 0 && (!year || !selectedYears.includes(year))) return false
-          return true
-        })
-        return {...page, matchingReviews}
-      })
-      .filter((page) => {
-        const matchesTerm = !term || `${page.serviceName} ${page.parentName || ''}`.toLowerCase().includes(term)
-        return matchesTerm && page.matchingReviews.length > 0
-      })
-  }, [aggregateRating, query, selectedEquipment, selectedRatings, selectedYears, stablePages])
+    return allReviews.filter((entry) => {
+      const {review, services} = entry
+      if (selectedEquipment.length > 0 && !services.some((service) => selectedEquipment.includes(service.slug))) return false
+      if (selectedRatings.length > 0 && !selectedRatings.includes(reviewRating(review, aggregateRating).toString())) return false
+      const year = reviewYear(review)
+      if (selectedYears.length > 0 && (!year || !selectedYears.includes(year))) return false
+      if (!term) return true
+      const searchable = [
+        review.quote,
+        review.author,
+        review.location,
+        ...services.flatMap((service) => [service.name, service.parentName]),
+      ].filter(Boolean).join(' ').toLowerCase()
+      return searchable.includes(term)
+    })
+  }, [aggregateRating, allReviews, query, selectedEquipment, selectedRatings, selectedYears])
 
   const appliedFilters = useMemo<AppliedFilter[]>(() => [
     ...selectedRatings.map((rating) => ({
@@ -110,7 +140,7 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
   ], [selectedEquipment, selectedRatings, selectedYears, stablePages])
 
   const hasFilters = appliedFilters.length > 0 || query.trim().length > 0
-  const heading = hasFilters ? 'Filtered review collections' : 'Google review collections'
+  const heading = hasFilters ? 'Reviews matching your filters' : 'All customer reviews'
 
   function clearFilters() {
     setSelectedRatings([])
@@ -122,7 +152,7 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
   return (
     <section className="review-directory" aria-labelledby="review-directory-title">
       <div className="collection-wrap review-directory-grid">
-        <aside className="review-filter" aria-label="Review collection filters">
+        <aside className="review-filter" aria-label="Review filters">
           <div className="review-filter-head">
             <div><p className="review-filter-kicker">Filter reviews</p><span>{appliedFilters.length} applied</span></div>
             {hasFilters && <button type="button" onClick={clearFilters}>Clear all</button>}
@@ -132,12 +162,12 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
             <details className="review-facet" open={openFacets.rating} onToggle={(event) => { const isOpen = event.currentTarget.open; setOpenFacets((current) => ({...current, rating: isOpen})) }}>
               <summary>
                 <span><strong>Rating</strong><small>Google score</small></span>
-                <span className="review-facet-summary-count">{selectedRatings.length || starRatings.length}</span>
+                <span className="review-facet-summary-count">{selectedRatings.length || STAR_RATINGS.length}</span>
               </summary>
-              <div className="review-facet-options">
-                {starRatings.map((rating) => {
+              <div className="review-facet-options review-facet-options-scroll">
+                {STAR_RATINGS.map((rating) => {
                   const value = rating.toString()
-                  const count = allReviews.filter((review) => Math.round(review.rating || aggregateRating) === rating).length
+                  const count = allReviews.filter((entry) => reviewRating(entry.review, aggregateRating) === rating).length
                   return (
                     <label key={rating}>
                       <input
@@ -158,9 +188,9 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
                 <span><strong>Years</strong><small>Review date</small></span>
                 <span className="review-facet-summary-count">{selectedYears.length || years.length}</span>
               </summary>
-              <div className="review-facet-options">
+              <div className="review-facet-options review-facet-options-scroll">
                 {years.map((year) => {
-                  const count = allReviews.filter((review) => reviewYear(review) === year).length
+                  const count = allReviews.filter((entry) => reviewYear(entry.review) === year).length
                   return (
                     <label key={year}>
                       <input
@@ -182,32 +212,35 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
                 <span className="review-facet-summary-count">{selectedEquipment.length || stablePages.length}</span>
               </summary>
               <div className="review-facet-options review-facet-options-scroll">
-                {stablePages.map((page) => (
-                  <label key={page.serviceSlug}>
-                    <input
-                      type="checkbox"
-                      checked={selectedEquipment.includes(page.serviceSlug)}
-                      onChange={() => toggleValue(page.serviceSlug, selectedEquipment, setSelectedEquipment)}
-                    />
-                    <span>{page.serviceName}</span>
-                    <b>{page.reviews.length}</b>
-                  </label>
-                ))}
+                {stablePages.map((page) => {
+                  const count = allReviews.filter((entry) => entry.services.some((service) => service.slug === page.serviceSlug)).length
+                  return (
+                    <label key={page.serviceSlug}>
+                      <input
+                        type="checkbox"
+                        checked={selectedEquipment.includes(page.serviceSlug)}
+                        onChange={() => toggleValue(page.serviceSlug, selectedEquipment, setSelectedEquipment)}
+                      />
+                      <span>{page.serviceName}</span>
+                      <b>{count}</b>
+                    </label>
+                  )
+                })}
               </div>
             </details>
           </div>
-          <p className="review-filter-note">Select one or more options. Review collections update here without leaving the page; open a card for its dedicated service review URL.</p>
+          <p className="review-filter-note">Choose any rating, year, or service. The review cards update instantly on this page.</p>
         </aside>
 
         <div className="review-results">
           <div className="review-results-heading">
-            <div><p className="collection-kicker">Customer proof by service</p><h2 id="review-directory-title">{heading}</h2></div>
-            <p>Choose a service collection to read every matching review excerpt and follow it back to the original Google review.</p>
+            <div><p className="collection-kicker">Customer feedback</p><h2 id="review-directory-title">{heading}</h2></div>
+            <p>Read every review card available in this library here. Use a service label to open its dedicated review page or follow the source link to Google.</p>
           </div>
 
           <div className="review-search-row">
-            <label><span>Find a service</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search electrical services" /></label>
-            <p aria-live="polite"><strong>{filtered.length}</strong> service collections</p>
+            <label><span>Search reviews</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reviews, services, or customers" /></label>
+            <p aria-live="polite"><strong>{filtered.length}</strong> review{filtered.length === 1 ? '' : 's'}</p>
           </div>
 
           {appliedFilters.length > 0 && (
@@ -225,31 +258,32 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
 
           {filtered.length === 0 && (
             <div className="collection-empty">
-              <h3>No matching review collections</h3>
-              <p>Try a different combination or clear the applied filters.</p>
+              <h3>No matching reviews yet</h3>
+              <p>There are no imported reviews for this combination. Try another filter or clear your selection.</p>
               <button type="button" onClick={clearFilters}>Clear all filters</button>
             </div>
           )}
 
-          <div className="review-collection-grid">
-            {filtered.map((page) => {
-              const cardImage = serviceCardImageForSlug(page.serviceSlug) || page.cardImage
+          <div className="review-feed-grid">
+            {filtered.map(({id, review, services}) => {
+              const rating = reviewRating(review, aggregateRating)
+              const context = review.reviewDate || review.location
+              const reviewDate = reviewDateValue(review)
               return (
-                <Link className="review-collection-card" href={`/${page.serviceSlug}`} key={page._id}>
-                  <span className={`review-collection-media${cardImage ? '' : ' review-collection-media-empty'}`}>
-                    {cardImage
-                      ? <img src={cardImage} alt={page.cardImageAlt || `${page.serviceName} work by Highlights Chicago`} loading="lazy" decoding="async" />
-                      : <span aria-hidden="true">HC</span>}
-                    <span className="review-card-count">{pluralReviews(page.matchingReviews.length)}</span>
-                  </span>
-                  <span className="review-collection-body">
-                    <span className="review-collection-parent">{page.parentName || 'Electrical services'}</span>
-                    <strong>{page.serviceName}</strong>
-                    <GoogleRating rating={page.matchingReviews[0]?.rating || aggregateRating} compact />
-                    <span className="review-collection-quote">“{page.matchingReviews[0]?.quote}”</span>
-                    <span className="review-collection-link">Read this collection <span aria-hidden="true">→</span></span>
-                  </span>
-                </Link>
+                <article className="rev-card review-feed-card" key={id}>
+                  <div className="review-feed-services">
+                    {services.slice(0, 2).map((service) => (
+                      <Link href={`/${service.slug}`} key={service.slug}>{service.name}</Link>
+                    ))}
+                    {services.length > 2 && <span>+{services.length - 2} more</span>}
+                  </div>
+                  <blockquote>{review.quote}</blockquote>
+                  <div className="rev-rating"><GoogleRating rating={rating} compact /></div>
+                  <footer className="rev-meta">
+                    <span><strong>{review.author || 'Google reviewer'}</strong>{context && <> · <time dateTime={reviewDate}>{context}</time></>}</span>
+                    {review.sourceUrl && <a className="rev-src" href={review.sourceUrl} target="_blank" rel="noreferrer">View on Google →</a>}
+                  </footer>
+                </article>
               )
             })}
           </div>

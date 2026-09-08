@@ -386,3 +386,85 @@ a{color:var(--brand);text-underline-offset:3px}
     white-space:normal;
   }
 }
+
+/* The main Reviews route is a direct, filterable review feed. */
+.review-facet-list{
+  max-height:min(62vh,620px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-color:var(--collection-lime) #edf1f2;
+  scrollbar-width:thin;
+}
+.review-facet-options-scroll{max-height:230px}
+.review-feed-grid{
+  display:grid;
+  gap:18px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.review-feed-card{min-height:430px}
+.review-feed-services{
+  align-content:start;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:18px;
+  min-height:48px;
+}
+.review-feed-services a,.review-feed-services>span{
+  background:#edf2e2;
+  border:1px solid #d7e3bb;
+  color:var(--collection-charcoal);
+  display:-webkit-box;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.05em;
+  line-height:1.35;
+  overflow:hidden;
+  padding:5px 7px;
+  text-decoration:none;
+  text-transform:uppercase;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+.review-feed-services a:hover{background:var(--collection-lime);border-color:var(--collection-lime)}
+.review-feed-services>span{background:#f4f6f7;border-color:var(--review-line);color:var(--review-muted)}
+
+@media(max-width:1050px){
+  .review-feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:850px){
+  .review-facet-list{max-height:480px}
+}
+
+@media(max-width:620px){
+  .review-facet-list{max-height:390px}
+  .review-facet-options-scroll{max-height:210px}
+  .review-feed-grid{gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review-page .review-feed-card{min-height:310px;padding:13px 11px}
+  .review-feed-services{margin-bottom:11px;min-height:34px}
+  .review-feed-services a{font-size:7px;padding:4px 5px;width:100%}
+  .review-feed-services a:not(:first-child),.review-feed-services>span{display:none}
+  .review-page .review-feed-card blockquote{
+    font-size:12px;
+    height:11.6em;
+    line-height:1.45;
+    margin-bottom:12px;
+    max-height:11.6em;
+    min-height:11.6em;
+  }
+  .review-page .review-feed-card .rev-rating{padding-top:9px}
+  .review-page .review-feed-card .rating-sm{flex-wrap:wrap;gap:3px}
+  .review-page .review-feed-card .rating-sm .mark{flex-basis:13px;height:13px;width:13px}
+  .review-page .review-feed-card .rating-sm .num,.review-page .review-feed-card .rating-sm .out{font-size:.7rem}
+  .review-page .review-feed-card .rating-sm .stars{font-size:.66rem}
+  .review-page .review-feed-card .rev-meta{
+    font-size:9px;
+    gap:4px;
+    line-height:1.35;
+    margin-top:9px;
+    min-height:42px;
+    padding-top:9px;
+  }
+  .review-page .review-feed-card .rev-src{font-size:9px}
+}
