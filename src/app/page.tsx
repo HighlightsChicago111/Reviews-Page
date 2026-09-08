@@ -2,7 +2,7 @@ import type {Metadata} from 'next'
 import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
 import {GoogleRating} from '@/components/google-review-card'
-import {ReviewCollection, type ReviewAxis} from '@/components/review-collection'
+import {ReviewCollection} from '@/components/review-collection'
 import {sanityFetch} from '@/sanity/lib/live'
 import {REVIEW_COLLECTION_QUERY} from '@/sanity/lib/queries'
 import type {ReviewCollectionData} from '@/types/content'
@@ -31,9 +31,6 @@ export default async function ReviewsPage({searchParams}: Props) {
   const reviewCardCount = new Set(
     pages.flatMap((page) => page.reviews.map((review) => review.sourceId || review.sourceUrl || `${review.author || 'anonymous'}::${review.quote}`)),
   ).size
-  const view = single(params.view)
-  const activeAxis: ReviewAxis = view === 'years' || view === 'equipment' ? view : 'rating'
-
   return (
     <div className="collection-page review-page">
       <CollectionHeader />
@@ -57,7 +54,7 @@ export default async function ReviewsPage({searchParams}: Props) {
             </aside>
           </div>
         </section>
-        <ReviewCollection pages={pages} aggregateRating={aggregateRating} activeAxis={activeAxis} activeYear={single(params.year)} activeRating={single(params.rating)} />
+        <ReviewCollection pages={pages} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
         <section className="review-proof-band">
           <div className="collection-wrap">
             <div><span>Source transparency</span><strong>Every excerpt links to Google</strong></div>

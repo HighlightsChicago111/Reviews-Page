@@ -583,3 +583,41 @@ a{color:var(--brand);text-underline-offset:3px}
     min-height:11.6em;
   }
 }
+
+/* One scrollable filter surface with every facet permanently visible. */
+.review-facet-heading{
+  align-items:center;
+  background:var(--collection-lime);
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  padding:17px 18px;
+}
+.review-facet-heading>span:first-child{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.review-facet-heading strong{font-size:16px;font-weight:600}
+.review-facet-heading small{
+  color:#47534b;
+  font-size:11px;
+  margin-top:2px;
+}
+.review-facet-heading .review-facet-summary-count{
+  background:var(--collection-charcoal);
+  color:#fff;
+}
+.review-facet-list{
+  max-height:min(64vh,680px);
+  overflow-y:auto;
+}
+.review-facet-list .review-facet-options{
+  max-height:none;
+  overflow:visible;
+}
+
+@media(max-width:620px){
+  .review-facet-heading{padding:15px}
+  .review-facet-list{max-height:430px}
+}

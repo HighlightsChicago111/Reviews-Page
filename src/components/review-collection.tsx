@@ -5,12 +5,9 @@ import {useMemo, useState} from 'react'
 import type {Review, ReviewCollectionItem} from '@/types/content'
 import {GoogleRating} from './google-review-card'
 
-export type ReviewAxis = 'rating' | 'years' | 'equipment'
-
 type Props = {
   pages: ReviewCollectionItem[]
   aggregateRating: number
-  activeAxis: ReviewAxis
   activeYear?: string
   activeRating?: string
 }
@@ -56,18 +53,13 @@ function toggleValue(value: string, current: string[], update: (next: string[]) 
   update(current.includes(value) ? current.filter((item) => item !== value) : [...current, value])
 }
 
-export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear, activeRating}: Props) {
+export function ReviewCollection({pages, aggregateRating, activeYear, activeRating}: Props) {
   const [query, setQuery] = useState('')
   const [selectedRatings, setSelectedRatings] = useState<string[]>(
     activeRating && !['all', 'google'].includes(activeRating) ? [activeRating] : [],
   )
   const [selectedYears, setSelectedYears] = useState<string[]>(activeYear ? [activeYear] : [])
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
-  const [openFacets, setOpenFacets] = useState<Record<ReviewAxis, boolean>>({
-    rating: activeAxis === 'rating',
-    years: activeAxis === 'years',
-    equipment: activeAxis === 'equipment',
-  })
 
   const stablePages = useMemo(() => {
     const unique = new Map<string, ReviewCollectionItem>()
@@ -158,12 +150,12 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
           </div>
 
           <div className="review-facet-list">
-            <details className="review-facet" open={openFacets.rating} onToggle={(event) => { const isOpen = event.currentTarget.open; setOpenFacets((current) => ({...current, rating: isOpen})) }}>
-              <summary>
+            <section className="review-facet">
+              <div className="review-facet-heading">
                 <span><strong>Rating</strong><small>Google score</small></span>
                 <span className="review-facet-summary-count">{selectedRatings.length || STAR_RATINGS.length}</span>
-              </summary>
-              <div className="review-facet-options review-facet-options-scroll">
+              </div>
+              <div className="review-facet-options">
                 {STAR_RATINGS.map((rating) => {
                   const value = rating.toString()
                   const count = allReviews.filter((entry) => reviewRating(entry.review, aggregateRating) === rating).length
@@ -180,14 +172,14 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
                   )
                 })}
               </div>
-            </details>
+            </section>
 
-            <details className="review-facet" open={openFacets.years} onToggle={(event) => { const isOpen = event.currentTarget.open; setOpenFacets((current) => ({...current, years: isOpen})) }}>
-              <summary>
+            <section className="review-facet">
+              <div className="review-facet-heading">
                 <span><strong>Years</strong><small>Review date</small></span>
                 <span className="review-facet-summary-count">{selectedYears.length || years.length}</span>
-              </summary>
-              <div className="review-facet-options review-facet-options-scroll">
+              </div>
+              <div className="review-facet-options">
                 {years.map((year) => {
                   const count = allReviews.filter((entry) => reviewYear(entry.review) === year).length
                   return (
@@ -203,14 +195,14 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
                   )
                 })}
               </div>
-            </details>
+            </section>
 
-            <details className="review-facet" open={openFacets.equipment} onToggle={(event) => { const isOpen = event.currentTarget.open; setOpenFacets((current) => ({...current, equipment: isOpen})) }}>
-              <summary>
+            <section className="review-facet">
+              <div className="review-facet-heading">
                 <span><strong>Equipment</strong><small>Electrical service</small></span>
                 <span className="review-facet-summary-count">{selectedEquipment.length || stablePages.length}</span>
-              </summary>
-              <div className="review-facet-options review-facet-options-scroll">
+              </div>
+              <div className="review-facet-options">
                 {stablePages.map((page) => {
                   const count = allReviews.filter((entry) => entry.services.some((service) => service.slug === page.serviceSlug)).length
                   return (
@@ -226,7 +218,7 @@ export function ReviewCollection({pages, aggregateRating, activeAxis, activeYear
                   )
                 })}
               </div>
-            </details>
+            </section>
           </div>
           <p className="review-filter-note">Choose any rating, year, or service. The review cards update instantly on this page.</p>
         </aside>
