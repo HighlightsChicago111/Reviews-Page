@@ -49,6 +49,7 @@ export default async function ReviewsPage({searchParams}: Props) {
               <div className="review-hero-actions"><a href="#review-directory-title">Read all review cards</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
             <aside className="review-score-card" aria-label={`Google rating ${aggregateRating.toFixed(1)} out of 5`} style={ratingStyle}>
+              <span className="review-score-trust">Trusted by Chicago homeowners</span>
               <div className="review-score-gauge">
                 <div className="review-score-gauge-inner">
                   <GoogleMark large />
@@ -58,6 +59,7 @@ export default async function ReviewsPage({searchParams}: Props) {
               <div className="review-score-stars" aria-label={`${aggregateRating.toFixed(1)} out of 5 stars`}>
                 <span aria-hidden="true">★★★★★</span>
               </div>
+              <span className="review-score-verified">Verified on Google</span>
             </aside>
           </div>
         </section>
