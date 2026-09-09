@@ -509,20 +509,22 @@ a{color:var(--brand);text-underline-offset:3px}
 @media(max-width:620px){
   .review-hero,
   .review-detail-hero{
-    --review-mobile-image-height:clamp(210px,60vw,340px);
-    padding:calc(var(--review-mobile-image-height) + 24px) 0 46px;
+    --review-mobile-image-depth:clamp(390px,118vw,500px);
+    padding:34px 0 46px;
   }
   .review-hero::before,
   .review-detail-hero::before{
-    background:linear-gradient(180deg,rgba(8,15,22,.02) 0%,rgba(8,15,22,.06) 55%,#101923 100%);
-    bottom:auto;
-    height:calc(var(--review-mobile-image-height) + 72px);
+    background:linear-gradient(180deg,rgba(8,15,22,.42) 0%,rgba(8,15,22,.48) 26%,rgba(8,15,22,.78) 52%,#101923 76%);
+    height:auto;
+    inset:0;
   }
   .review-hero-image{
     bottom:auto!important;
-    height:var(--review-mobile-image-height)!important;
+    height:var(--review-mobile-image-depth)!important;
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 72%,transparent 100%);
+    mask-image:linear-gradient(180deg,#000 0%,#000 72%,transparent 100%);
     object-fit:cover;
-    object-position:center center;
+    object-position:52% center;
     top:0!important;
   }
   .review-page .review-breadcrumb{
