@@ -7,6 +7,7 @@ export type Review = {
   rating?: number
   sourceUrl?: string
   sourceId?: string
+  serviceSlugs?: string[]
 }
 
 export type ReviewCollectionItem = {
@@ -32,4 +33,3 @@ export type ReviewSettings = {
 
 export type ReviewCollectionData = {pages: ReviewCollectionItem[]; settings: ReviewSettings}
 export type ReviewServiceData = {page: ReviewCollectionItem | null; settings: ReviewSettings}
-

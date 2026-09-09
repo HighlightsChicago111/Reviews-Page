@@ -6,6 +6,7 @@ import {GoogleRating} from './google-review-card'
 
 type Props = {
   pages: ReviewCollectionItem[]
+  reviews?: Review[]
   aggregateRating: number
   activeYear?: string
   activeRating?: string
@@ -52,13 +53,16 @@ function toggleValue(value: string, current: string[], update: (next: string[]) 
   update(current.includes(value) ? current.filter((item) => item !== value) : [...current, value])
 }
 
-export function ReviewCollection({pages, aggregateRating, activeYear, activeRating}: Props) {
+type FacetName = 'rating' | 'years' | 'equipment'
+
+export function ReviewCollection({pages, reviews = [], aggregateRating, activeYear, activeRating}: Props) {
   const [query, setQuery] = useState('')
   const [selectedRatings, setSelectedRatings] = useState<string[]>(
     activeRating && !['all', 'google'].includes(activeRating) ? [activeRating] : [],
   )
   const [selectedYears, setSelectedYears] = useState<string[]>(activeYear ? [activeYear] : [])
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
+  const [openFacet, setOpenFacet] = useState<FacetName | null>(null)
   const reviewResultsStartRef = useRef<HTMLParagraphElement>(null)
   const scrollAfterFilterChangeRef = useRef(false)
 
@@ -82,6 +86,18 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
   const allReviews = useMemo<ReviewEntry[]>(() => {
     const entries = new Map<string, ReviewEntry>()
 
+    const servicesBySlug = new Map<string, ReviewService>(
+      stablePages.map((page): [string, ReviewService] => [page.serviceSlug, {slug: page.serviceSlug, name: page.serviceName, parentName: page.parentName}]),
+    )
+
+    for (const review of reviews) {
+      const id = reviewIdentity(review)
+      const services = (review.serviceSlugs || [])
+        .map((slug) => servicesBySlug.get(slug))
+        .filter((service): service is ReviewService => Boolean(service))
+      entries.set(id, {id, review, services})
+    }
+
     for (const page of stablePages) {
       const service = {slug: page.serviceSlug, name: page.serviceName, parentName: page.parentName}
       for (const review of page.reviews) {
@@ -100,7 +116,17 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
       if (lengthDifference !== 0) return lengthDifference
       return (reviewDateValue(b.review) || '').localeCompare(reviewDateValue(a.review) || '')
     })
-  }, [stablePages])
+  }, [reviews, stablePages])
+
+  const ratingCounts = useMemo(() => {
+    const counts = new Map<number, number>()
+    for (const rating of STAR_RATINGS) counts.set(rating, 0)
+    for (const entry of allReviews) {
+      const rating = reviewRating(entry.review, aggregateRating)
+      counts.set(rating, (counts.get(rating) || 0) + 1)
+    }
+    return counts
+  }, [aggregateRating, allReviews])
 
   const years = useMemo(
     () => Array.from(new Set(allReviews.map((entry) => reviewYear(entry.review)).filter(Boolean) as string[])).sort().reverse(),
@@ -171,46 +197,44 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
       <div className="collection-wrap review-directory-grid">
         <aside className="review-filter" aria-label="Review filters">
           <div className="review-filter-head">
-            <div><p className="review-filter-kicker">Filter reviews</p><span>{appliedFilters.length} applied</span></div>
-            {hasFilters && <button type="button" onClick={clearFilters}>Clear all</button>}
+            <p className="review-filter-kicker">Filter reviews</p>
           </div>
 
           <div className="review-facet-list">
-            <section className="review-facet">
-              <div className="review-facet-heading">
+            <section className={`review-facet${openFacet === 'rating' ? ' is-open' : ''}`}>
+              <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'rating'} aria-controls="rating-filter-options" onClick={() => setOpenFacet((current) => current === 'rating' ? null : 'rating')}>
                 <span><strong>Rating</strong><small>Google score</small></span>
-                <span className="review-facet-summary-count">{selectedRatings.length || STAR_RATINGS.length}</span>
-              </div>
-              <div className="review-facet-options">
+              </button>
+              {openFacet === 'rating' && <div className="review-facet-options review-rating-options" id="rating-filter-options">
                 {STAR_RATINGS.map((rating) => {
                   const value = rating.toString()
-                  const count = allReviews.filter((entry) => reviewRating(entry.review, aggregateRating) === rating).length
+                  const count = ratingCounts.get(rating) || 0
+                  const percentage = allReviews.length > 0 ? (count / allReviews.length) * 100 : 0
                   return (
-                    <label key={rating}>
+                    <label className="review-rating-filter" key={rating}>
                       <input
                         type="checkbox"
+                        aria-label={`${rating}-star reviews, ${percentage.toFixed(1)} percent of the review library`}
                         checked={selectedRatings.includes(value)}
                         onChange={() => {
                           scrollAfterFilterChangeRef.current = true
                           toggleValue(value, selectedRatings, setSelectedRatings)
                         }}
                       />
-                      <span>{rating}-star reviews</span>
-                      <b>{count}</b>
+                      <span className="review-rating-filter-label">{rating}<span aria-hidden="true">★</span></span>
+                      <span className="review-rating-bar" aria-hidden="true"><span style={{width: `${Math.max(count > 0 ? 1 : 0, percentage)}%`}} /></span>
                     </label>
                   )
                 })}
-              </div>
+              </div>}
             </section>
 
-            <section className="review-facet">
-              <div className="review-facet-heading">
+            <section className={`review-facet${openFacet === 'years' ? ' is-open' : ''}`}>
+              <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'years'} aria-controls="year-filter-options" onClick={() => setOpenFacet((current) => current === 'years' ? null : 'years')}>
                 <span><strong>Years</strong><small>Review date</small></span>
-                <span className="review-facet-summary-count">{selectedYears.length || years.length}</span>
-              </div>
-              <div className="review-facet-options">
+              </button>
+              {openFacet === 'years' && <div className="review-facet-options" id="year-filter-options">
                 {years.map((year) => {
-                  const count = allReviews.filter((entry) => reviewYear(entry.review) === year).length
                   return (
                     <label key={year}>
                       <input
@@ -222,21 +246,18 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                         }}
                       />
                       <span>{year} reviews</span>
-                      <b>{count}</b>
                     </label>
                   )
                 })}
-              </div>
+              </div>}
             </section>
 
-            <section className="review-facet">
-              <div className="review-facet-heading">
+            <section className={`review-facet${openFacet === 'equipment' ? ' is-open' : ''}`}>
+              <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'equipment'} aria-controls="equipment-filter-options" onClick={() => setOpenFacet((current) => current === 'equipment' ? null : 'equipment')}>
                 <span><strong>Equipment</strong><small>Electrical service</small></span>
-                <span className="review-facet-summary-count">{selectedEquipment.length || stablePages.length}</span>
-              </div>
-              <div className="review-facet-options">
+              </button>
+              {openFacet === 'equipment' && <div className="review-facet-options" id="equipment-filter-options">
                 {stablePages.map((page) => {
-                  const count = allReviews.filter((entry) => entry.services.some((service) => service.slug === page.serviceSlug)).length
                   return (
                     <label key={page.serviceSlug}>
                       <input
@@ -248,14 +269,12 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                         }}
                       />
                       <span>{page.serviceName}</span>
-                      <b>{count}</b>
                     </label>
                   )
                 })}
-              </div>
+              </div>}
             </section>
           </div>
-          <p className="review-filter-note">Choose any rating, year, or service. The review cards update instantly on this page.</p>
         </aside>
 
         <div className="review-results">
@@ -275,6 +294,7 @@ export function ReviewCollection({pages, aggregateRating, activeYear, activeRati
                     {filter.label}<span aria-hidden="true">×</span>
                   </button>
                 ))}
+                <button className="review-clear-all" type="button" onClick={clearFilters}>Clear all</button>
               </div>
             </div>
           )}

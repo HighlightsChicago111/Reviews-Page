@@ -3,9 +3,10 @@ import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
 import {GoogleRating} from '@/components/google-review-card'
 import {ReviewCollection} from '@/components/review-collection'
+import fullGoogleReviews from '@/data/full-google-reviews.json'
 import {sanityFetch} from '@/sanity/lib/live'
 import {REVIEW_COLLECTION_QUERY} from '@/sanity/lib/queries'
-import type {ReviewCollectionData} from '@/types/content'
+import type {Review, ReviewCollectionData} from '@/types/content'
 
 export const revalidate = 60
 export const metadata: Metadata = {
@@ -28,9 +29,7 @@ export default async function ReviewsPage({searchParams}: Props) {
   const typed = data as ReviewCollectionData
   const pages = typed.pages || []
   const aggregateRating = typed.settings?.google?.rating || 4.9
-  const reviewCardCount = new Set(
-    pages.flatMap((page) => page.reviews.map((review) => review.sourceId || review.sourceUrl || `${review.author || 'anonymous'}::${review.quote}`)),
-  ).size
+  const reviewCount = typed.settings?.google?.reviewCount || 494
   return (
     <div className="collection-page review-page">
       <CollectionHeader />
@@ -46,15 +45,15 @@ export default async function ReviewsPage({searchParams}: Props) {
               <div className="review-hero-actions"><a href="#review-directory-title">Read all review cards</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
             <aside className="review-score-card" aria-label="Highlights Chicago Google review score">
-              <span>Google customer rating</span>
               <strong>{aggregateRating.toFixed(1)}</strong>
-              <GoogleRating rating={aggregateRating} />
-              <p><b>{typed.settings?.google?.reviewCount || 494}</b> public Google reviews</p>
-              <p><b>{reviewCardCount}</b> searchable review cards in this library</p>
+              <div className="review-score-summary">
+                <GoogleRating rating={aggregateRating} />
+                <b aria-label={`${reviewCount} Google reviews`}>{reviewCount}</b>
+              </div>
             </aside>
           </div>
         </section>
-        <ReviewCollection pages={pages} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
+        <ReviewCollection pages={pages} reviews={fullGoogleReviews as Review[]} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
         <section className="review-proof-band">
           <div className="collection-wrap">
             <div><span>Source transparency</span><strong>Every excerpt links to Google</strong></div>
