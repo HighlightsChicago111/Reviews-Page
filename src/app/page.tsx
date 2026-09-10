@@ -10,8 +10,8 @@ import type {Review, ReviewCollectionData} from '@/types/content'
 
 export const revalidate = 60
 export const metadata: Metadata = {
-  title: 'Highlights Chicago Reviews | Trusted Chicago Electricians',
-  description: 'See why Chicago homeowners trust Highlights. Read verified Google feedback about our electrical workmanship, communication, and service across Chicagoland.',
+  title: 'Customer Reviews | Highlights Chicago Electricians',
+  description: 'Before you hire Highlights Chicago, hear from the homeowners who already did. Explore verified Google reviews about our electrical work, communication, cleanliness, and care.',
   alternates: {canonical: 'https://www.highlightschicago.com/reviews'},
 }
 
@@ -40,9 +40,9 @@ export default async function ReviewsPage({searchParams}: Props) {
           <div className="collection-wrap review-hero-grid">
             <div>
               <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><strong>Reviews</strong></nav>
-              <p className="collection-hero-kicker">Real projects. Verified feedback.</p>
-              <h1>See why Chicago homeowners trust Highlights</h1>
-              <p>Hear what local customers say about our workmanship, communication, and care—from everyday repairs to major electrical upgrades. Filter verified Google reviews by rating, year, or service.</p>
+              <p className="collection-hero-kicker">Real Chicago homes. Real customer stories.</p>
+              <h1>Before you hire us, hear from the people who already did</h1>
+              <p>Explore verified Google reviews from Chicago homeowners who trusted Highlights with repairs, lighting, panels, EV chargers, and more. Filter every real customer story by rating, year, or service.</p>
               <div className="review-hero-actions"><a href="#review-directory-title">Read customer reviews</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
             {heroReview && <AnimatedReviewScoreCard aggregateRating={aggregateRating} review={heroReview} reviewCount={typed.settings?.google?.reviewCount || 494} />}

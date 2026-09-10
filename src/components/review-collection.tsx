@@ -98,15 +98,19 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
       entries.set(id, {id, review, services})
     }
 
-    for (const page of stablePages) {
-      const service = {slug: page.serviceSlug, name: page.serviceName, parentName: page.parentName}
-      for (const review of page.reviews) {
-        const id = reviewIdentity(review)
-        const existing = entries.get(id)
-        if (existing) {
-          if (!existing.services.some((item) => item.slug === service.slug)) existing.services.push(service)
-        } else {
-          entries.set(id, {id, review, services: [service]})
+    // The master review library carries the real service-keyword classifications.
+    // Curated four-card service-page excerpts are only a fallback when it is absent.
+    if (reviews.length === 0) {
+      for (const page of stablePages) {
+        const service = {slug: page.serviceSlug, name: page.serviceName, parentName: page.parentName}
+        for (const review of page.reviews) {
+          const id = reviewIdentity(review)
+          const existing = entries.get(id)
+          if (existing) {
+            if (!existing.services.some((item) => item.slug === service.slug)) existing.services.push(service)
+          } else {
+            entries.set(id, {id, review, services: [service]})
+          }
         }
       }
     }
@@ -132,6 +136,26 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
     () => Array.from(new Set(allReviews.map((entry) => reviewYear(entry.review)).filter(Boolean) as string[])).sort().reverse(),
     [allReviews],
   )
+
+  const yearCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const entry of allReviews) {
+      const year = reviewYear(entry.review)
+      if (year) counts.set(year, (counts.get(year) || 0) + 1)
+    }
+    return counts
+  }, [allReviews])
+
+  const equipmentCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const page of stablePages) counts.set(page.serviceSlug, 0)
+    for (const entry of allReviews) {
+      for (const service of entry.services) {
+        counts.set(service.slug, (counts.get(service.slug) || 0) + 1)
+      }
+    }
+    return counts
+  }, [allReviews, stablePages])
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -221,6 +245,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
                       />
                       <span className="review-rating-filter-label">{rating}<span aria-hidden="true">★</span></span>
                       <span className="review-rating-bar" aria-hidden="true"><span style={{width: `${Math.max(count > 0 ? 1 : 0, percentage)}%`}} /></span>
+                      <b aria-label={`${count} reviews`}>{count}</b>
                     </label>
                   )
                 })}
@@ -244,6 +269,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
                         }}
                       />
                       <span>{year}</span>
+                      <b aria-label={`${yearCounts.get(year) || 0} reviews`}>{yearCounts.get(year) || 0}</b>
                     </label>
                   )
                 })}
@@ -267,6 +293,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
                         }}
                       />
                       <span>{page.serviceName}</span>
+                      <b aria-label={`${equipmentCounts.get(page.serviceSlug) || 0} reviews`}>{equipmentCounts.get(page.serviceSlug) || 0}</b>
                     </label>
                   )
                 })}
