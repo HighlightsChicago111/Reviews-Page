@@ -157,6 +157,11 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
     return counts
   }, [allReviews, stablePages])
 
+  const availableEquipmentPages = useMemo(
+    () => stablePages.filter((page) => (equipmentCounts.get(page.serviceSlug) || 0) > 0),
+    [equipmentCounts, stablePages],
+  )
+
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
     return allReviews.filter((entry) => {
@@ -281,7 +286,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
                 <span><strong>Equipment</strong></span>
               </button>
               {openFacet === 'equipment' && <div className="review-facet-options" id="equipment-filter-options">
-                {stablePages.map((page) => {
+                {availableEquipmentPages.map((page) => {
                   return (
                     <label key={page.serviceSlug}>
                       <input

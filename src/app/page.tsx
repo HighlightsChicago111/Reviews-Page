@@ -30,7 +30,13 @@ export default async function ReviewsPage({searchParams}: Props) {
   const pages = typed.pages || []
   const aggregateRating = typed.settings?.google?.rating || 4.9
   const reviews = fullGoogleReviews as Review[]
-  const heroReview = reviews.find((review) => review.sourceId === 'R003') || reviews[0]
+  const heroReviewIds = new Set(['R002', 'R003', 'R019'])
+  const heroReviews = reviews.filter((review) => heroReviewIds.has(review.sourceId || ''))
+  const ratingCounts = reviews.reduce<Record<number, number>>((counts, review) => {
+    const rating = Math.max(1, Math.min(5, Math.round(review.rating || aggregateRating)))
+    counts[rating] = (counts[rating] || 0) + 1
+    return counts
+  }, {})
   return (
     <div className="collection-page review-page">
       <CollectionHeader />
@@ -45,7 +51,7 @@ export default async function ReviewsPage({searchParams}: Props) {
               <p>Explore verified Google reviews from Chicago homeowners who trusted Highlights with repairs, lighting, panels, EV chargers, and more. Filter every real customer story by rating, year, or service.</p>
               <div className="review-hero-actions"><a href="#review-directory-title">Read customer reviews</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
-            {heroReview && <AnimatedReviewScoreCard aggregateRating={aggregateRating} review={heroReview} reviewCount={typed.settings?.google?.reviewCount || 494} />}
+            {heroReviews.length > 0 && <AnimatedReviewScoreCard aggregateRating={aggregateRating} reviews={heroReviews} reviewCount={typed.settings?.google?.reviewCount || 494} ratingCounts={ratingCounts} />}
           </div>
         </section>
         <ReviewCollection pages={pages} reviews={reviews} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
