@@ -1,8 +1,7 @@
-import type {CSSProperties} from 'react'
 import type {Metadata} from 'next'
 import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
-import {GoogleMark} from '@/components/google-review-card'
+import {AnimatedReviewScoreCard} from '@/components/animated-review-score-card'
 import {ReviewCollection} from '@/components/review-collection'
 import fullGoogleReviews from '@/data/full-google-reviews.json'
 import {sanityFetch} from '@/sanity/lib/live'
@@ -11,8 +10,8 @@ import type {Review, ReviewCollectionData} from '@/types/content'
 
 export const revalidate = 60
 export const metadata: Metadata = {
-  title: 'Chicago Electrician Reviews | Highlights Chicago',
-  description: 'Read Highlights Chicago customer reviews directly, filter them by Google rating, year, or electrical service, and open every original review on Google.',
+  title: 'Highlights Chicago Reviews | Trusted Chicago Electricians',
+  description: 'See why Chicago homeowners trust Highlights. Read verified Google feedback about our electrical workmanship, communication, and service across Chicagoland.',
   alternates: {canonical: 'https://www.highlightschicago.com/reviews'},
 }
 
@@ -30,10 +29,8 @@ export default async function ReviewsPage({searchParams}: Props) {
   const typed = data as ReviewCollectionData
   const pages = typed.pages || []
   const aggregateRating = typed.settings?.google?.rating || 4.9
-  const ratingStyle = {
-    '--score-pct': `${Math.max(0, Math.min(100, aggregateRating * 20))}%`,
-    '--pct': `${Math.max(0, Math.min(100, aggregateRating * 20))}%`,
-  } as CSSProperties
+  const reviews = fullGoogleReviews as Review[]
+  const heroReview = reviews.find((review) => review.sourceId === 'R003') || reviews[0]
   return (
     <div className="collection-page review-page">
       <CollectionHeader />
@@ -43,27 +40,15 @@ export default async function ReviewsPage({searchParams}: Props) {
           <div className="collection-wrap review-hero-grid">
             <div>
               <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><strong>Reviews</strong></nav>
-              <p className="collection-hero-kicker">Verified customer feedback</p>
-              <h1>Chicago electrical reviews, all in one place</h1>
-              <p>Read the customer review cards directly on this page. Filter them instantly by rating, year, or electrical service, then verify any excerpt at its original Google source.</p>
-              <div className="review-hero-actions"><a href="#review-directory-title">Read all review cards</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
+              <p className="collection-hero-kicker">Real projects. Verified feedback.</p>
+              <h1>See why Chicago homeowners trust Highlights</h1>
+              <p>Hear what local customers say about our workmanship, communication, and care—from everyday repairs to major electrical upgrades. Filter verified Google reviews by rating, year, or service.</p>
+              <div className="review-hero-actions"><a href="#review-directory-title">Read customer reviews</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
-            <aside className="review-score-card" aria-label={`Google rating ${aggregateRating.toFixed(1)} out of 5`} style={ratingStyle}>
-              <span className="review-score-trust">Trusted by Chicago homeowners</span>
-              <div className="review-score-gauge">
-                <div className="review-score-gauge-inner">
-                  <GoogleMark large />
-                  <div className="review-score-value"><strong>{aggregateRating.toFixed(1)}</strong><span>/5</span></div>
-                </div>
-              </div>
-              <div className="review-score-stars" aria-label={`${aggregateRating.toFixed(1)} out of 5 stars`}>
-                <span aria-hidden="true">★★★★★</span>
-              </div>
-              <span className="review-score-verified">Verified on Google</span>
-            </aside>
+            {heroReview && <AnimatedReviewScoreCard aggregateRating={aggregateRating} review={heroReview} reviewCount={typed.settings?.google?.reviewCount || 494} />}
           </div>
         </section>
-        <ReviewCollection pages={pages} reviews={fullGoogleReviews as Review[]} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
+        <ReviewCollection pages={pages} reviews={reviews} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
         <section className="review-proof-band">
           <div className="collection-wrap">
             <div><span>Source transparency</span><strong>Every excerpt links to Google</strong></div>

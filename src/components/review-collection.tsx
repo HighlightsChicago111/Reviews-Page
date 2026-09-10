@@ -182,8 +182,6 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
     }),
   ], [selectedEquipment, selectedRatings, selectedYears, stablePages])
 
-  const hasFilters = appliedFilters.length > 0 || query.trim().length > 0
-
   function clearFilters() {
     scrollAfterFilterChangeRef.current = true
     setSelectedRatings([])
@@ -203,7 +201,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
           <div className="review-facet-list">
             <section className={`review-facet${openFacet === 'rating' ? ' is-open' : ''}`}>
               <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'rating'} aria-controls="rating-filter-options" onClick={() => setOpenFacet((current) => current === 'rating' ? null : 'rating')}>
-                <span><strong>Rating</strong><small>Google score</small></span>
+                <span><strong>Rating</strong></span>
               </button>
               {openFacet === 'rating' && <div className="review-facet-options review-rating-options" id="rating-filter-options">
                 {STAR_RATINGS.map((rating) => {
@@ -231,7 +229,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
 
             <section className={`review-facet${openFacet === 'years' ? ' is-open' : ''}`}>
               <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'years'} aria-controls="year-filter-options" onClick={() => setOpenFacet((current) => current === 'years' ? null : 'years')}>
-                <span><strong>Years</strong><small>Review date</small></span>
+                <span><strong>Years</strong></span>
               </button>
               {openFacet === 'years' && <div className="review-facet-options" id="year-filter-options">
                 {years.map((year) => {
@@ -245,7 +243,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
                           toggleValue(year, selectedYears, setSelectedYears)
                         }}
                       />
-                      <span>{year} reviews</span>
+                      <span>{year}</span>
                     </label>
                   )
                 })}
@@ -254,7 +252,7 @@ export function ReviewCollection({pages, reviews = [], aggregateRating, activeYe
 
             <section className={`review-facet${openFacet === 'equipment' ? ' is-open' : ''}`}>
               <button className="review-facet-heading" type="button" aria-expanded={openFacet === 'equipment'} aria-controls="equipment-filter-options" onClick={() => setOpenFacet((current) => current === 'equipment' ? null : 'equipment')}>
-                <span><strong>Equipment</strong><small>Electrical service</small></span>
+                <span><strong>Equipment</strong></span>
               </button>
               {openFacet === 'equipment' && <div className="review-facet-options" id="equipment-filter-options">
                 {stablePages.map((page) => {
