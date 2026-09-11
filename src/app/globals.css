@@ -926,7 +926,7 @@ a{color:var(--brand);text-underline-offset:3px}
 /* Static Google-style summary used only in the Reviews-page hero. */
 .review-summary-card{
   background:#fff;
-  border-radius:18px;
+  border-radius:10px;
   box-shadow:0 26px 50px -28px rgba(0,0,0,.9);
   color:#202124;
   display:block;
@@ -1017,7 +1017,7 @@ a{color:var(--brand);text-underline-offset:3px}
 .review-summary-more span{display:inline-block;margin-left:4px}
 
 @media(max-width:620px){
-  .review-summary-card{border-radius:15px;padding:17px 15px 12px}
+  .review-summary-card{border-radius:8px;padding:17px 15px 12px}
   .review-summary-overview{gap:16px;padding:18px 0 14px}
   .review-summary-score{min-width:82px}
   .review-summary-score strong{font-size:44px}

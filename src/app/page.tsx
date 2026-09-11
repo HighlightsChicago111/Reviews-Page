@@ -48,7 +48,7 @@ export default async function ReviewsPage({searchParams}: Props) {
               <nav className="review-breadcrumb" aria-label="Breadcrumb"><a href="https://www.highlightschicago.com/">Home</a><span>/</span><strong>Reviews</strong></nav>
               <p className="collection-hero-kicker">Real Chicago homes. Real customer stories.</p>
               <h1>Before you hire us, hear from the people who already did</h1>
-              <p>Explore verified Google reviews from Chicago homeowners who trusted Highlights with repairs, lighting, panels, EV chargers, and more. Filter every real customer story by rating, year, or service.</p>
+              <p>Explore verified Google reviews from Chicago homeowners who trusted HighlightsChicago with repairs, lighting, panels, EV chargers, and more. Filter every real customer story by rating, year, or service.</p>
               <div className="review-hero-actions"><a href="#review-directory-title">Read customer reviews</a>{typed.settings?.google?.reviewsUrl && <a href={typed.settings.google.reviewsUrl} target="_blank" rel="noreferrer">See all reviews on Google</a>}</div>
             </div>
             {heroReviews.length > 0 && <AnimatedReviewScoreCard aggregateRating={aggregateRating} reviews={heroReviews} reviewCount={typed.settings?.google?.reviewCount || 494} ratingCounts={ratingCounts} />}
