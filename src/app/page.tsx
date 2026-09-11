@@ -3,6 +3,7 @@ import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
 import {AnimatedReviewScoreCard} from '@/components/animated-review-score-card'
 import {ReviewCollection} from '@/components/review-collection'
+import {VideoReviewShowcase} from '@/components/video-review-showcase'
 import fullGoogleReviews from '@/data/full-google-reviews.json'
 import {sanityFetch} from '@/sanity/lib/live'
 import {REVIEW_COLLECTION_QUERY} from '@/sanity/lib/queries'
@@ -32,6 +33,9 @@ export default async function ReviewsPage({searchParams}: Props) {
   const reviews = fullGoogleReviews as Review[]
   const heroReviewIds = new Set(['R002', 'R003', 'R019'])
   const heroReviews = reviews.filter((review) => heroReviewIds.has(review.sourceId || ''))
+  const videoReviews = ['R198', 'R196', 'R289']
+    .map((sourceId) => reviews.find((review) => review.sourceId === sourceId))
+    .filter((review): review is Review => Boolean(review))
   const ratingCounts = reviews.reduce<Record<number, number>>((counts, review) => {
     const rating = Math.max(1, Math.min(5, Math.round(review.rating || aggregateRating)))
     counts[rating] = (counts[rating] || 0) + 1
@@ -54,6 +58,7 @@ export default async function ReviewsPage({searchParams}: Props) {
             {heroReviews.length > 0 && <AnimatedReviewScoreCard aggregateRating={aggregateRating} reviews={heroReviews} reviewCount={typed.settings?.google?.reviewCount || 494} ratingCounts={ratingCounts} />}
           </div>
         </section>
+        <VideoReviewShowcase reviews={videoReviews} />
         <ReviewCollection pages={pages} reviews={reviews} aggregateRating={aggregateRating} activeYear={single(params.year)} activeRating={single(params.rating)} />
         <section className="review-proof-band">
           <div className="collection-wrap">
