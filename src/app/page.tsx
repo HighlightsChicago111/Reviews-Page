@@ -46,7 +46,7 @@ export default async function ReviewsPage({searchParams}: Props) {
               <div className="review-hero-visual">
                 <Image
                   className="review-hero-cutout"
-                  src="/reviews/images/highlights-team-van-hero-v2.png"
+                  src="/reviews/images/highlights-team-van-hero-v3.png"
                   alt="A HighlightsChicago electrician speaking with a customer beside a service van"
                   width={1678}
                   height={937}
