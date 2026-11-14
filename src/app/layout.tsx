@@ -1,6 +1,11 @@
 import type {Metadata} from 'next'
+import {Inter} from 'next/font/google'
 import {SanityLive} from '@/sanity/lib/live'
 import './globals.css'
+import '@/components/site-navbar/site-navbar.css'
+
+// Inter for the site-wide navbar only (its CSS reads --snav-inter); the rest of this app keeps its own fonts.
+const navbarFont = Inter({subsets: ['latin'], variable: '--snav-inter', display: 'swap'})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.highlightschicago.com'),
@@ -17,5 +22,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
-  return <html lang="en"><body>{children}<SanityLive /></body></html>
+  return <html lang="en"><body className={navbarFont.variable}>{children}<SanityLive /></body></html>
 }

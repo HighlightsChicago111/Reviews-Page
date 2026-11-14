@@ -1,25 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import {FooterLeadForm} from './footer-lead-form'
-import Link from 'next/link'
+import {SiteNavbar} from './site-navbar/site-navbar'
 
 const LIVE_SITE = 'https://www.highlightschicago.com'
-const HEADER_LOGO = 'https://cdn.prod.website-files.com/69f58d69563c4c5bf9b01c60/6a3c3c20491b43b0858c1876_highlights-chicago-logo.webp'
 const FOOTER_LOGO = 'https://cdn.prod.website-files.com/69f58d69563c4c5bf9b01c60/69ffb4d8099654cbee2d7b53_Highlights-Chicago_Logo-white.webp'
-
-const primaryLinks = [
-  {label: 'Home', href: `${LIVE_SITE}/`},
-  {label: 'About us', href: `${LIVE_SITE}/about-us`},
-  {label: 'Services', href: `${LIVE_SITE}/services`},
-  {label: 'Service Areas', href: `${LIVE_SITE}/service-areas`},
-  {label: 'Reviews', href: '/', internal: true},
-  {label: 'Blog', href: `${LIVE_SITE}/blog`},
-  {label: 'Learning Center', href: `${LIVE_SITE}/learning-center`},
-]
-
-function PrimaryLink({link}: {link: (typeof primaryLinks)[number]}) {
-  return link.internal ? <Link href={link.href}>{link.label}</Link> : <a href={link.href}>{link.label}</a>
-}
 
 const utilityIcons = {
   location: 'M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 10.2A3.2 3.2 0 1 1 12 5.8a3.2 3.2 0 0 1 0 6.4Z',
@@ -45,24 +30,7 @@ export function CollectionHeader() {
           </div>
         </div>
       </div>
-      <header className="collection-header">
-        <div className="collection-nav-shell">
-          <a className="collection-logo" href={`${LIVE_SITE}/`} aria-label="Highlights Chicago home">
-            <img src={HEADER_LOGO} alt="Highlights Chicago" />
-          </a>
-          <nav className="collection-desktop-nav" aria-label="Primary navigation">
-            {primaryLinks.map((link) => <PrimaryLink link={link} key={link.href} />)}
-          </nav>
-          <a className="collection-contact-button" href={`${LIVE_SITE}/contact-us`}>Book Now</a>
-          <details className="collection-mobile-menu">
-            <summary aria-label="Open navigation menu"><span /><span /><span /></summary>
-            <nav aria-label="Mobile navigation">
-              {primaryLinks.map((link) => <PrimaryLink link={link} key={link.href} />)}
-              <a href={`${LIVE_SITE}/contact-us`}>Book Now</a>
-            </nav>
-          </details>
-        </div>
-      </header>
+      <SiteNavbar current="reviews" />
     </div>
   )
 }
