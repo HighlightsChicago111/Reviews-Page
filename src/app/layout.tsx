@@ -1,6 +1,7 @@
 import type {Metadata} from 'next'
 import {Inter} from 'next/font/google'
 import {SanityLive} from '@/sanity/lib/live'
+import {GoogleTagManager, GoogleTagManagerNoScript} from '@/components/google-tag-manager'
 import './globals.css'
 import '@/components/site-navbar/site-navbar.css'
 
@@ -22,5 +23,16 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
-  return <html lang="en"><body className={navbarFont.variable}>{children}<SanityLive /></body></html>
+  // Tags fire only on the live site: not locally and not on preview deployments.
+  const gtm = process.env.VERCEL_ENV === 'production'
+  return (
+    <html lang="en">
+      <body className={navbarFont.variable}>
+        {gtm && <GoogleTagManagerNoScript />}
+        {children}
+        {gtm && <GoogleTagManager />}
+        <SanityLive />
+      </body>
+    </html>
+  )
 }
