@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
 import {GoogleRating, GoogleReviewCard} from '@/components/google-review-card'
+import {PageJsonLd, REVIEWS_URL} from '@/components/page-json-ld'
 import {metadataClient} from '@/sanity/lib/client'
 import {sanityFetch} from '@/sanity/lib/live'
 import {REVIEW_SERVICE_QUERY} from '@/sanity/lib/queries'
@@ -12,6 +13,9 @@ import type {ReviewServiceData} from '@/types/content'
 export const revalidate = 60
 type Props = {params: Promise<{serviceSlug: string}>}
 
+const descriptionFor = (serviceName: string) => `Read Google review excerpts for ${serviceName.toLowerCase()} from Highlights Chicago customers, with links to every original review.`
+const canonicalFor = (serviceSlug: string) => `${REVIEWS_URL}/${serviceSlug}`
+
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const resolved = await params
   const data = await metadataClient.fetch(REVIEW_SERVICE_QUERY, resolved) as ReviewServiceData
@@ -19,8 +23,8 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
   const title = `${data.page.serviceName} Reviews in Chicago`
   return {
     title,
-    description: `Read Google review excerpts for ${data.page.serviceName.toLowerCase()} from Highlights Chicago customers, with links to every original review.`,
-    alternates: {canonical: `https://www.highlightschicago.com/reviews/${data.page.serviceSlug}`},
+    description: descriptionFor(data.page.serviceName),
+    alternates: {canonical: canonicalFor(data.page.serviceSlug)},
   }
 }
 
@@ -72,6 +76,12 @@ export default async function ServiceReviewsPage({params}: Props) {
         </section>
       </main>
       <CollectionFooter />
+      <PageJsonLd
+        url={canonicalFor(page.serviceSlug)}
+        name={`${page.serviceName} reviews`}
+        description={descriptionFor(page.serviceName)}
+        crumbs={[{name: 'Reviews', url: REVIEWS_URL}, {name: page.serviceName, url: canonicalFor(page.serviceSlug)}]}
+      />
     </div>
   )
 }

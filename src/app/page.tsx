@@ -1,6 +1,7 @@
 import type {Metadata} from 'next'
 import Image from 'next/image'
 import {CollectionFooter, CollectionHeader} from '@/components/collection-chrome'
+import {PageJsonLd, REVIEWS_URL} from '@/components/page-json-ld'
 import {ReviewCollection} from '@/components/review-collection'
 import {VideoReviewShowcase} from '@/components/video-review-showcase'
 import fullGoogleReviews from '@/data/full-google-reviews.json'
@@ -9,10 +10,11 @@ import {REVIEW_COLLECTION_QUERY} from '@/sanity/lib/queries'
 import type {Review, ReviewCollectionData} from '@/types/content'
 
 export const revalidate = 60
+const DESCRIPTION = 'Before you hire Highlights Chicago, hear from the homeowners who already did. Explore verified Google reviews about our electrical work, communication, cleanliness, and care.'
 export const metadata: Metadata = {
   title: 'Customer Reviews | Highlights Chicago Electricians',
-  description: 'Before you hire Highlights Chicago, hear from the homeowners who already did. Explore verified Google reviews about our electrical work, communication, cleanliness, and care.',
-  alternates: {canonical: 'https://www.highlightschicago.com/reviews'},
+  description: DESCRIPTION,
+  alternates: {canonical: REVIEWS_URL},
 }
 
 type Props = {searchParams: Promise<Record<string, string | string[] | undefined>>}
@@ -73,6 +75,7 @@ export default async function ReviewsPage({searchParams}: Props) {
         </section>
       </main>
       <CollectionFooter />
+      <PageJsonLd url={REVIEWS_URL} name="See why Chicago chooses us" description={DESCRIPTION} crumbs={[{name: 'Reviews', url: REVIEWS_URL}]} />
     </div>
   )
 }
